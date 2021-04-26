@@ -174,3 +174,12 @@ func TestParseError_basicErr_blocked(t *testing.T) {
 	assert.Equal(t, ErrBlocked, le.Message)
 	assert.Equal(t, err.Error(), le.Details)
 }
+
+func BenchmarkParse550RCPTError(b *testing.B) {
+	err := errors.New("550 This mailbox does not exist")
+	for i := 0; i < b.N; i++ {
+		le := ParseSMTPError(err)
+		assert.Equal(b, ErrServerUnavailable, le.Message)
+		assert.Equal(b, err.Error(), le.Details)
+	}
+}

@@ -299,3 +299,34 @@ func TestCheckEmail_EnableDomainSuggest(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, ret.Suggestion, "")
 }
+
+func BenchmarkCheckEmail_ErrorSyntax(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+
+		var (
+			// trueVal  = true
+			username = ""
+			domain   = "yahoo.com"
+			address  = username + "@" + domain
+			email    = address
+		)
+
+		ret, err := verifier.Verify(email)
+		expected := Result{
+			Email: email,
+			Syntax: Syntax{
+				Username: username,
+				Domain:   "",
+				Valid:    false,
+			},
+			HasMxRecords: false,
+			Reachable:    reachableUnknown,
+			Disposable:   false,
+			RoleAccount:  false,
+			Free:         false,
+			SMTP:         nil,
+		}
+		assert.Nil(b, err)
+		assert.Equal(b, &expected, ret)
+	}
+}

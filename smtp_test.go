@@ -131,3 +131,18 @@ func TestDialSMTPFailed_NoSuchHost(t *testing.T) {
 	assert.Error(t, err)
 	assert.True(t, strings.Contains(err.Error(), "no such host"))
 }
+
+func BenchmarkCheckSMTPOK_HostExists(b *testing.B) {
+	domain := "github.com"
+	for i := 0; i < b.N; i++ {
+		smtp, err := verifier.CheckSMTP(domain, "")
+		expected := SMTP{
+			HostExists: true,
+			FullInbox:  false,
+			CatchAll:   true,
+			Disabled:   false,
+		}
+		assert.NoError(b, err)
+		assert.Equal(b, &expected, smtp)
+	}
+}

@@ -21,3 +21,13 @@ func TestCheckNoMxOK(t *testing.T) {
 	assert.Nil(t, mx)
 	assert.Error(t, err, ErrNoSuchHost)
 }
+
+func BenchmarkCheckMxOK(b *testing.B) {
+	domain := "github.com"
+
+	for i := 0; i < b.N; i++ {
+		mx, err := verifier.CheckMX(domain)
+		assert.NoError(b, err)
+		assert.True(b, mx.HasMXRecord)
+	}
+}
