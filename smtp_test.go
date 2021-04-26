@@ -18,7 +18,7 @@ func TestCheckSMTPOK_HostExists(t *testing.T) {
 		Disabled:   false,
 	}
 	assert.NoError(t, err)
-	assert.Equal(t, &expected, smtp)
+	assert.Equal(t, expected, smtp)
 }
 
 func TestCheckSMTPOK_CatchAllHost(t *testing.T) {
@@ -32,7 +32,7 @@ func TestCheckSMTPOK_CatchAllHost(t *testing.T) {
 		Disabled:   false,
 	}
 	assert.NoError(t, err)
-	assert.Equal(t, &expected, smtp)
+	assert.Equal(t, expected, smtp)
 }
 
 func TestCheckSMTPOK_UpdateFromEmail(t *testing.T) {
@@ -48,7 +48,7 @@ func TestCheckSMTPOK_UpdateFromEmail(t *testing.T) {
 		Disabled:    false,
 	}
 	assert.NoError(t, err)
-	assert.Equal(t, &expected, smtp)
+	assert.Equal(t, expected, smtp)
 }
 
 func TestCheckSMTPOK_UpdateHelloName(t *testing.T) {
@@ -64,7 +64,7 @@ func TestCheckSMTPOK_UpdateHelloName(t *testing.T) {
 		Disabled:    false,
 	}
 	assert.NoError(t, err)
-	assert.Equal(t, &expected, smtp)
+	assert.Equal(t, expected, smtp)
 }
 
 func TestCheckSMTPOK_WithNoExistUsername(t *testing.T) {
@@ -79,7 +79,7 @@ func TestCheckSMTPOK_WithNoExistUsername(t *testing.T) {
 		Disabled:   false,
 	}
 	assert.NoError(t, err)
-	assert.Equal(t, &expected, smtp)
+	assert.Equal(t, expected, smtp)
 }
 
 func TestCheckSMTP_DisabledSMTPCheck(t *testing.T) {
@@ -98,7 +98,7 @@ func TestCheckSMTPOK_HostNotExists(t *testing.T) {
 
 	smtp, err := verifier.CheckSMTP(domain, "")
 	assert.Error(t, err, ErrNoSuchHost)
-	assert.Equal(t, &SMTP{}, smtp)
+	assert.Equal(t, SMTP{}, smtp)
 }
 
 func TestNewSMTPClientOK(t *testing.T) {
@@ -134,15 +134,15 @@ func TestDialSMTPFailed_NoSuchHost(t *testing.T) {
 
 func BenchmarkCheckSMTPOK_HostExists(b *testing.B) {
 	domain := "github.com"
+	expected := SMTP{
+		HostExists: true,
+		FullInbox:  false,
+		CatchAll:   true,
+		Disabled:   false,
+	}
 	for i := 0; i < b.N; i++ {
 		smtp, err := verifier.CheckSMTP(domain, "")
-		expected := SMTP{
-			HostExists: true,
-			FullInbox:  false,
-			CatchAll:   true,
-			Disabled:   false,
-		}
 		assert.NoError(b, err)
-		assert.Equal(b, &expected, smtp)
+		assert.Equal(b, expected, smtp)
 	}
 }

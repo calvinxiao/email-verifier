@@ -16,16 +16,16 @@ type Verifier struct {
 
 // Result is the result of Email Verification
 type Result struct {
-	Email        string    `json:"email"`          // passed email address
-	Reachable    string    `json:"reachable"`      // an enumeration to describe whether the recipient address is real
-	Syntax       Syntax    `json:"syntax"`         // details about the email address syntax
-	SMTP         *SMTP     `json:"smtp"`           // details about the SMTP response of the email
-	Gravatar     *Gravatar `json:"gravatar"`       // whether or not have gravatar for the email
-	Suggestion   string    `json:"suggestion"`     // domain suggestion when domain is misspelled
-	Disposable   bool      `json:"disposable"`     // is this a DEA (disposable email address)
-	RoleAccount  bool      `json:"role_account"`   // is account a role-based account
-	Free         bool      `json:"free"`           // is domain a free email domain
-	HasMxRecords bool      `json:"has_mx_records"` // whether or not MX-Records for the domain
+	Email        string   `json:"email"`          // passed email address
+	Reachable    string   `json:"reachable"`      // an enumeration to describe whether the recipient address is real
+	Syntax       Syntax   `json:"syntax"`         // details about the email address syntax
+	SMTP         SMTP     `json:"smtp"`           // details about the SMTP response of the email
+	Gravatar     Gravatar `json:"gravatar"`       // whether or not have gravatar for the email
+	Suggestion   string   `json:"suggestion"`     // domain suggestion when domain is misspelled
+	Disposable   bool     `json:"disposable"`     // is this a DEA (disposable email address)
+	RoleAccount  bool     `json:"role_account"`   // is account a role-based account
+	Free         bool     `json:"free"`           // is domain a free email domain
+	HasMxRecords bool     `json:"has_mx_records"` // whether or not MX-Records for the domain
 }
 
 // init loads disposable_domain meta data to disposableSyncDomains which are safe for concurrent use
@@ -45,7 +45,7 @@ func NewVerifier() *Verifier {
 }
 
 // Verify performs address, misc, mx and smtp checks
-func (v *Verifier) Verify(email string) (*Result, error) {
+func (v *Verifier) Verify(email string) (Result, error) {
 
 	ret := Result{
 		Email:     email,
@@ -55,7 +55,7 @@ func (v *Verifier) Verify(email string) (*Result, error) {
 	syntax := v.ParseAddress(email)
 	ret.Syntax = syntax
 	if !syntax.Valid {
-		return &ret, nil
+		return ret, nil
 	}
 
 	ret.Free = v.IsFreeDomain(syntax.Domain)
@@ -64,18 +64,18 @@ func (v *Verifier) Verify(email string) (*Result, error) {
 
 	// If the domain name is disposable, mx and smtp are not checked.
 	if ret.Disposable {
-		return &ret, nil
+		return ret, nil
 	}
 
 	mx, err := v.CheckMX(syntax.Domain)
 	if err != nil {
-		return &ret, err
+		return ret, err
 	}
 	ret.HasMxRecords = mx.HasMXRecord
 
 	smtp, err := v.CheckSMTP(syntax.Domain, syntax.Username)
 	if err != nil {
-		return &ret, err
+		return ret, err
 	}
 	ret.SMTP = smtp
 	ret.Reachable = v.calculateReachable(smtp)
@@ -83,7 +83,7 @@ func (v *Verifier) Verify(email string) (*Result, error) {
 	if v.gravatarCheckEnabled {
 		gravatar, err := v.CheckGravatar(email)
 		if err != nil {
-			return &ret, err
+			return ret, err
 		}
 		ret.Gravatar = gravatar
 	}
@@ -92,7 +92,7 @@ func (v *Verifier) Verify(email string) (*Result, error) {
 		ret.Suggestion = v.SuggestDomain(syntax.Domain)
 	}
 
-	return &ret, nil
+	return ret, nil
 }
 
 // EnableGravatarCheck enables check gravatar,
@@ -163,7 +163,7 @@ func (v *Verifier) HelloName(domain string) *Verifier {
 	return v
 }
 
-func (v *Verifier) calculateReachable(s *SMTP) string {
+func (v *Verifier) calculateReachable(s SMTP) string {
 	if !v.smtpCheckEnabled {
 		return reachableUnknown
 	}

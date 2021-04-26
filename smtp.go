@@ -23,27 +23,26 @@ type SMTP struct {
 //  - the domain is the passed email domain
 //  - username is used to check the deliverability of specific email address,
 // if server is catch-all server, username will not be checked
-func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
-	if !v.smtpCheckEnabled {
-		return nil, nil
-	}
-
+func (v *Verifier) CheckSMTP(domain, username string) (SMTP, error) {
 	var ret SMTP
+	if !v.smtpCheckEnabled {
+		return ret, nil
+	}
 
 	// Dial any SMTP server that will accept a connection
 	client, err := newSMTPClient(domain)
 	if err != nil {
-		return &ret, ParseSMTPError(err)
+		return ret, ParseSMTPError(err)
 	}
 
 	// Sets the HELO/EHLO hostname
 	if err := client.Hello(v.helloName); err != nil {
-		return &ret, ParseSMTPError(err)
+		return ret, ParseSMTPError(err)
 	}
 
 	// Sets the from email
 	if err := client.Mail(v.fromEmail); err != nil {
-		return &ret, ParseSMTPError(err)
+		return ret, ParseSMTPError(err)
 	}
 
 	// Defer quit the SMTP connection
@@ -79,7 +78,7 @@ func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
 	// If the email server is a catch-all email server or no username provided,
 	// no need to calibrate deliverable on a specific user
 	if ret.CatchAll || username == "" {
-		return &ret, nil
+		return ret, nil
 	}
 
 	email := fmt.Sprintf("%s@%s", username, domain)
@@ -87,7 +86,7 @@ func (v *Verifier) CheckSMTP(domain, username string) (*SMTP, error) {
 		ret.Deliverable = true
 	}
 
-	return &ret, nil
+	return ret, nil
 }
 
 // newSMTPClient generates a new available SMTP client

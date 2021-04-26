@@ -17,8 +17,7 @@ func TestCheckMxOK(t *testing.T) {
 func TestCheckNoMxOK(t *testing.T) {
 	domain := "githubexists.com"
 
-	mx, err := verifier.CheckMX(domain)
-	assert.Nil(t, mx)
+	_, err := verifier.CheckMX(domain)
 	assert.Error(t, err, ErrNoSuchHost)
 }
 

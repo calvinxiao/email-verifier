@@ -1,7 +1,6 @@
 package emailverifier
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -37,7 +36,7 @@ func newLookupError(message, details string) *LookupError {
 }
 
 func (e *LookupError) Error() string {
-	return fmt.Sprintf("%s : %s", e.Message, e.Details)
+	return e.Message + " : " + e.Details
 }
 
 // ParseSMTPError receives an MX Servers response message
